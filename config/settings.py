@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-BASE_DIR = Path(__file__).resolve().parent.parent
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "accounts",
+    "airport_service",
 ]
 
 MIDDLEWARE = [
@@ -61,8 +63,12 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
     }
 }
 
@@ -96,6 +102,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "files" / "static"
+MEDIA_ROOT = BASE_DIR / "files" / "media"
+MEDIA_URL = "/media/"
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
