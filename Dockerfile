@@ -1,18 +1,17 @@
 FROM python:3.10-alpine3.22
 
-ENV PYTHONUNBUFFERED=1 \
-    POETRY_VERSION=1.8.3
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
 RUN apk add --no-cache gcc musl-dev postgresql-client postgresql-dev libffi-dev
 
-RUN pip install --no-cache-dir poetry==$POETRY_VERSION
+RUN pip install --no-cache-dir poetry
 
 COPY pyproject.toml poetry.lock* ./
 
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi
+    && poetry install --no-root --no-interaction --no-ansi
 
 RUN mkdir -p /files/media /files/static \
     && adduser -D -H django-user \
