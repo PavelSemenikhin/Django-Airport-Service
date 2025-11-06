@@ -49,5 +49,11 @@ class User(AbstractUser):
 
     objects = UserManager()
 
+    class Meta:
+        verbose_name = _("user")
+        verbose_name_plural = _("users")
+        ordering = ("-date_joined",)
+        db_table = "users"
+
     def __str__(self):
         return self.email
