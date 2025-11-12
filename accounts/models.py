@@ -5,6 +5,8 @@ from django.contrib.auth.models import (
 from django.db import models
 from django.utils.translation import gettext as _
 
+from config import settings
+
 
 class UserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
@@ -57,3 +59,22 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="profile",
+    )
+    phone = models.CharField(max_length=20, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("user's profile")
+        verbose_name_plural = _("user's profiles")
+        ordering = ("id",)
+        db_table = "user_profiles"
+
+    def __str__(self):
+        return f"{self.user.email} profile"
