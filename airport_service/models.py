@@ -30,7 +30,12 @@ class Airport(models.Model):
 
 
 class AirplaneType(models.Model):
-    name = models.CharField(max_length=255, null=False, blank=False, unique=True)
+    name = models.CharField(
+        max_length=255,
+        null=False,
+        blank=False,
+        unique=True,
+    )
 
     class Meta:
         ordering = ["name", "id"]
@@ -44,7 +49,10 @@ class Airplane(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False)
     rows = models.IntegerField(null=False)
     seats_in_row = models.IntegerField(null=False)
-    airplane_type = models.ForeignKey(AirplaneType, on_delete=models.CASCADE)
+    airplane_type = models.ForeignKey(
+        AirplaneType,
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         ordering = ["name"]
@@ -68,12 +76,23 @@ class Route(models.Model):
         db_table = "routes"
 
     def __str__(self):
-        return f"Route {self.source.name} -> {self.destination.name}."
+        return (
+            f"Route {self.source.name} -> "
+            f"{self.destination.name}."
+        )
 
 
 class Crew(models.Model):
-    first_name = models.CharField(max_length=255, null=False, blank=False)
-    last_name = models.CharField(max_length=255, null=False, blank=False)
+    first_name = models.CharField(
+        max_length=255,
+        null=False,
+        blank=False,
+    )
+    last_name = models.CharField(
+        max_length=255,
+        null=False,
+        blank=False,
+    )
 
     class Meta:
         ordering = ["last_name", "first_name"]
@@ -84,7 +103,11 @@ class Crew(models.Model):
 
 
 class Flight(models.Model):
-    route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name="flights")
+    route = models.ForeignKey(
+        Route,
+        on_delete=models.CASCADE,
+        related_name="flights",
+    )
     airplane = models.ForeignKey(
         Airplane, on_delete=models.CASCADE, related_name="flights"
     )
@@ -97,20 +120,32 @@ class Flight(models.Model):
         db_table = "flights"
 
     def __str__(self):
-        return f"Flight {self.route.source.name} -> {self.route.destination.name}."
+        return (
+            f"Flight {self.route.source.name} -> "
+            f"{self.route.destination.name}."
+        )
 
 
 class Ticket(models.Model):
     row = models.IntegerField(null=False, blank=False)
     seat = models.IntegerField(null=False, blank=False)
-    flight = models.ForeignKey(Flight, on_delete=models.CASCADE, related_name="tickets")
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
+    flight = models.ForeignKey(
+        Flight,
+        on_delete=models.CASCADE,
+        related_name="tickets",
+    )
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="tickets",
+    )
 
     class Meta:
         ordering = ["id"]
         db_table = "tickets"
         constraints = [
             models.UniqueConstraint(
-                fields=["flight", "row", "seat"], name="unique_ticket_per_seat"
+                fields=["flight", "row", "seat"],
+                name="unique_ticket_per_seat",
             )
         ]
