@@ -1,5 +1,4 @@
 from django.db import transaction
-from poetry.console.commands import self
 from rest_framework import serializers
 
 from airport_service.models import (
@@ -37,7 +36,10 @@ class TicketNestedSerializer(serializers.ModelSerializer):
 
 
 class TicketReadSerializer(serializers.ModelSerializer):
-    order = serializers.StringRelatedField(many=False, read_only=True)
+    order = serializers.StringRelatedField(
+        many=False,
+        read_only=True,
+    )
 
     class Meta:
         model = Ticket
@@ -73,7 +75,10 @@ class AirplaneTypeCreateSerializer(serializers.ModelSerializer):
 
 
 class AirplaneReadSerializer(serializers.ModelSerializer):
-    airplane_type = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    airplane_type = serializers.SlugRelatedField(
+        slug_field="name",
+        read_only=True,
+    )
 
     class Meta:
         model = Airplane
@@ -87,13 +92,25 @@ class AirplaneCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Airplane
-        fields = ("id", "name", "rows", "seats_in_row", "airplane_type")
+        fields = (
+            "id",
+            "name",
+            "rows",
+            "seats_in_row",
+            "airplane_type",
+        )
         read_only_fields = ("id",)
 
 
 class RouteReadSerializer(serializers.ModelSerializer):
-    source = serializers.SlugRelatedField(slug_field="name", read_only=True)
-    destination = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    source = serializers.SlugRelatedField(
+        slug_field="name",
+        read_only=True,
+    )
+    destination = serializers.SlugRelatedField(
+        slug_field="name",
+        read_only=True,
+    )
 
     class Meta:
         model = Route
@@ -102,8 +119,12 @@ class RouteReadSerializer(serializers.ModelSerializer):
 
 
 class RouteCreateSerializer(serializers.ModelSerializer):
-    source = serializers.PrimaryKeyRelatedField(queryset=Airport.objects.all())
-    destination = serializers.PrimaryKeyRelatedField(queryset=Airport.objects.all())
+    source = serializers.PrimaryKeyRelatedField(
+        queryset=Airport.objects.all(),
+    )
+    destination = serializers.PrimaryKeyRelatedField(
+        queryset=Airport.objects.all(),
+    )
 
     class Meta:
         model = Route
@@ -115,28 +136,58 @@ class FlightReadSerializer(serializers.ModelSerializer):
     crew = serializers.SlugRelatedField(
         slug_field="first_name", read_only=True, many=True
     )
-    route = serializers.SlugRelatedField(slug_field="id", read_only=True)
-    airplane = serializers.SlugRelatedField(slug_field="name", read_only=True)
+    route = serializers.SlugRelatedField(
+        slug_field="id",
+        read_only=True,
+    )
+    airplane = serializers.SlugRelatedField(
+        slug_field="name",
+        read_only=True,
+    )
 
     class Meta:
         model = Flight
-        fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
+        fields = (
+            "id",
+            "route",
+            "airplane",
+            "departure_time",
+            "arrival_time",
+            "crew",
+        )
 
 
 class FlightCreateSerializer(serializers.ModelSerializer):
-    route = serializers.PrimaryKeyRelatedField(queryset=Route.objects.all())
-    airplane = serializers.PrimaryKeyRelatedField(queryset=Airplane.objects.all())
-    crew = serializers.PrimaryKeyRelatedField(queryset=Crew.objects.all(), many=True)
+    route = serializers.PrimaryKeyRelatedField(
+        queryset=Route.objects.all(),
+    )
+    airplane = serializers.PrimaryKeyRelatedField(
+        queryset=Airplane.objects.all(),
+    )
+    crew = serializers.PrimaryKeyRelatedField(
+        queryset=Crew.objects.all(),
+        many=True,
+    )
 
     class Meta:
         model = Flight
-        fields = ("id", "route", "airplane", "departure_time", "arrival_time", "crew")
+        fields = (
+            "id",
+            "route",
+            "airplane",
+            "departure_time",
+            "arrival_time",
+            "crew",
+        )
         read_only_fields = ("id",)
 
 
 class OrderReadSerializer(serializers.ModelSerializer):
     tickets = TicketReadSerializer(many=True, read_only=True)
-    user = serializers.SlugRelatedField(slug_field="email", read_only=True)
+    user = serializers.SlugRelatedField(
+        slug_field="email",
+        read_only=True,
+    )
 
     class Meta:
         model = Order
@@ -145,7 +196,10 @@ class OrderReadSerializer(serializers.ModelSerializer):
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
-    tickets = TicketNestedSerializer(many=True, write_only=True)
+    tickets = TicketNestedSerializer(
+        many=True,
+        write_only=True,
+    )
 
     class Meta:
         model = Order
@@ -157,16 +211,24 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         tickets_data = validated_data.pop("tickets", [])
 
         with transaction.atomic():
-            order = Order.objects.create(user=user, **validated_data)
+            order = Order.objects.create(
+                user=user,
+                **validated_data,
+            )
 
             for ticket in tickets_data:
                 flight = ticket["flight"]
                 row = ticket["row"]
                 seat = ticket["seat"]
 
-                if Ticket.objects.filter(flight=flight, row=row, seat=seat).exists():
+                if Ticket.objects.filter(
+                    flight=flight,
+                    row=row,
+                    seat=seat,
+                ).exists():
                     raise serializers.ValidationError(
-                        f"Seat {row}-{seat} on flight {flight.id} already taken."
+                        f"Seat {row}-{seat} "
+                        f"on flight {flight.id} already taken."
                     )
 
                 Ticket.objects.create(order=order, **ticket)
