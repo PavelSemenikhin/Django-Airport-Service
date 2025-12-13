@@ -1,6 +1,5 @@
 from django.contrib import admin
 
-from accounts.models import UserProfile
 from airport_service.models import (
     Order,
     Airport,
