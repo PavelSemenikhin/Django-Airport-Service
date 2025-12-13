@@ -1,10 +1,18 @@
-FROM python:3.10-alpine3.22
+FROM python:3.10-slim
 
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN apk add --no-cache gcc musl-dev postgresql-client postgresql-dev libffi-dev
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    libffi-dev \
+    build-essential \
+    curl \
+    netcat-traditional \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir poetry
 
@@ -14,7 +22,7 @@ RUN poetry config virtualenvs.create false \
     && poetry install --no-root --no-interaction --no-ansi
 
 RUN mkdir -p /files/media /files/static \
-    && adduser -D -H django-user \
+    && useradd -m django-user \
     && chown -R django-user /files/media /files/static \
     && chmod -R 755 /files/media /files/static
 
